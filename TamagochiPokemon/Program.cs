@@ -22,7 +22,7 @@ internal class Program
             index++;
         }
 
-        int escolha;
+        int escolha = 0;
         int loop = 1;
         while (loop != 0)
         {
@@ -30,18 +30,22 @@ internal class Program
             Console.Write("Escolha um número: ");
             if (int.TryParse(Console.ReadLine(), out escolha) && escolha >= 1 && escolha <= pokemonEspeciesResposta.Results.Count)
             {
-                Console.WriteLine("Deu certo!");
-                Console.WriteLine("Numero captado: " + escolha);
                 loop = 0;
             }
             else
             {
-                Console.WriteLine("Bugou"); ;
+                Console.WriteLine("Tente novamente, Numero invalido!"); ;
             }
                 
         }
 
+        cliente = new RestClient($"https://pokeapi.co/api/v2/pokemon/{escolha}");
 
+        request = new RestRequest("", Method.Get);
+
+        response = cliente.Execute(request);
+
+        Console.WriteLine(response.Content);
 
     }
 }
