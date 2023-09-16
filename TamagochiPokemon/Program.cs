@@ -8,7 +8,6 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        // Obter a lista de espécies de Pokémons
 
         var client = new RestClient("https://pokeapi.co/api/v2/pokemon-species/");
         var request = new RestRequest("",Method.Get);
@@ -16,14 +15,12 @@ public class Program
 
         var pokemonEspeciesResposta = JsonConvert.DeserializeObject<PokemonSpeciesResult>(response.Content);
 
-        // Apresentar as opções ao jogador
         Console.WriteLine("Escolha um Tamagotchi:");
         for (int i = 0; i < pokemonEspeciesResposta.Results.Count; i++)
         {
             Console.WriteLine($"{i + 1}. {pokemonEspeciesResposta.Results[i].Name}");
         }
 
-        // Obter a escolha do jogador
         int escolha;
 
 
@@ -39,7 +36,6 @@ public class Program
                 break;
         }
 
-        // Obter as características do Pokémon escolhido
         client = new RestClient($"https://pokeapi.co/api/v2/pokemon/{escolha}");
         request = new RestRequest("", Method.Get);
         response = client.Execute(request);
@@ -48,7 +44,6 @@ public class Program
 
         var pokemonEscolhido = pokemonEspeciesResposta.Results[escolha - 1];
 
-        // Mostrar as características ao jogador
         Console.WriteLine("\n");
         Console.WriteLine($"Você escolheu {pokemonEscolhido.Name}!");
         Console.WriteLine($"Detalhes:");
