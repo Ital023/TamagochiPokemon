@@ -1,51 +1,68 @@
-﻿using RestSharp;
-using TamagochiPokemon;
+﻿
 using Newtonsoft.Json;
+using RestSharp;
+using System;
+using Tamagotchi;
 
-internal class Program
+public class Program
 {
-    private static void Main(string[] args)
+    public static void Main(string[] args)
     {
-        var cliente = new RestClient("https://pokeapi.co/api/v2/pokemon/");
-        RestRequest request = new RestRequest("", Method.Get);
-        var response = cliente.Execute(request);
+        // Obter a lista de espécies de Pokémons
 
-        //Console.WriteLine(response.Content);
+        var client = new RestClient("https://pokeapi.co/api/v2/pokemon-species/");
+        var request = new RestRequest("",Method.Get);
+        var response = client.Execute(request);
 
-        var pokemonEspeciesResposta = JsonConvert.DeserializeObject<PokemonEspecie>(response.Content);
+        var pokemonEspeciesResposta = JsonConvert.DeserializeObject<PokemonSpeciesResult>(response.Content);
 
-        Console.WriteLine("Escolha um: ");
-        int index = 0;
-        foreach(var pokemon in pokemonEspeciesResposta.Results)
+        // Apresentar as opções ao jogador
+        Console.WriteLine("Escolha um Tamagotchi:");
+        for (int i = 0; i < pokemonEspeciesResposta.Results.Count; i++)
         {
-            Console.WriteLine($"{index + 1}. {pokemon.Name}");
-            index++;
+            Console.WriteLine($"{i + 1}. {pokemonEspeciesResposta.Results[i].Name}");
         }
 
-        int escolha = 0;
-        int loop = 1;
-        while (loop != 0)
+        // Obter a escolha do jogador
+        int escolha;
+
+
+        while (true)
         {
             Console.WriteLine("\n");
             Console.Write("Escolha um número: ");
-            if (int.TryParse(Console.ReadLine(), out escolha) && escolha >= 1 && escolha <= pokemonEspeciesResposta.Results.Count)
+            if (!int.TryParse(Console.ReadLine(), out escolha) && escolha >= 1 && escolha <= pokemonEspeciesResposta.Results.Count)
             {
-                loop = 0;
+                Console.WriteLine("Escolha inválida. Tente novamente.");
             }
             else
-            {
-                Console.WriteLine("Tente novamente, Numero invalido!"); ;
-            }
-                
+                break;
         }
 
-        cliente = new RestClient($"https://pokeapi.co/api/v2/pokemon/{escolha}");
-
+        // Obter as características do Pokémon escolhido
+        client = new RestClient($"https://pokeapi.co/api/v2/pokemon/{escolha}");
         request = new RestRequest("", Method.Get);
+        response = client.Execute(request);
 
-        response = cliente.Execute(request);
+        var pokemonDetalhes = JsonConvert.DeserializeObject<PokemonDetailsResult>(response.Content);
 
-        Console.WriteLine(response.Content);
+        var pokemonEscolhido = pokemonEspeciesResposta.Results[escolha - 1];
 
+        // Mostrar as características ao jogador
+        Console.WriteLine("\n");
+        Console.WriteLine($"Você escolheu {pokemonEscolhido.Name}!");
+        Console.WriteLine($"Detalhes:");
+        Console.WriteLine($"- Nome: {pokemonEscolhido.Name}");
+        Console.WriteLine($"- Peso: {pokemonDetalhes.Weight}");
+        Console.WriteLine($"- Altura: {pokemonDetalhes.Height}");
+
+        Console.WriteLine("\n Habilidades do Mascote: ");
+
+        foreach (var abilityDetail in pokemonDetalhes.Abilities)
+        {
+            Console.WriteLine("Nome da Habilidade: " + abilityDetail.Ability.Name);
+        }
+
+        Console.WriteLine("\n");
     }
 }
